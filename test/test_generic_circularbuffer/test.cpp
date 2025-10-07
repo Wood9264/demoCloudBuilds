@@ -89,7 +89,11 @@ void test_pop_underflow() {
     TEST_ASSERT_EQUAL_UINT32(0, theBuffer.head);
 }
 
-int main(int argc, char **argv) {
+#ifdef target_test
+#include <Arduino.h>
+void setup() {
+    // Serial.begin(115200);
+    delay(2000);        // wait for serial monitor to open
     UNITY_BEGIN();
     RUN_TEST(test_initialize);
     RUN_TEST(test_push_pop);
@@ -98,3 +102,19 @@ int main(int argc, char **argv) {
     RUN_TEST(test_pop_underflow);
     UNITY_END();
 }
+
+void loop() {
+    // empty
+}
+
+#else
+int main(int argc, char **argv) {
+    UNITY_BEGIN();
+    RUN_TEST(test_initialize);
+    RUN_TEST(test_push_pop);
+    RUN_TEST(test_push_pop_wrap);
+    RUN_TEST(test_push_overflow);
+    RUN_TEST(test_pop_underflow);
+    return UNITY_END();
+}
+#endif
