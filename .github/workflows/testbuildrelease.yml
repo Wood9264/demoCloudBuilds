@@ -171,7 +171,7 @@ jobs:
           pio test -e all_generic_unittests
       
       # - name: Upload coverage reports to Codecov
-      #   uses: codecov/codecov-action@v3
+      #   uses: codecov/codecov-action@v4
       #   with:
       #     gcov: true
       #     gcov_include: '.pio/build/all_generic_unittests/*'
@@ -184,7 +184,7 @@ jobs:
 
       - name: Attach Binary to Workflow run
         id: attachbinarytoworkflowrun
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.selectversion.outputs.buildversionfilename }}.hex
           path: .pio/build/production_application/firmware.hex
