@@ -166,9 +166,6 @@ jobs:
       - name: install gcovr 8.4
         run: pip install gcovr==8.4
 
-      - name: Install sonar-scanner and build-wrapper
-        uses: sonarsource/sonarcloud-github-c-cpp@v3
-
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
 
@@ -198,15 +195,17 @@ jobs:
         run: |
           pio run -e production_application
 
-      - name: Run sonar-scanner
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-         sonar-scanner \
-            --define sonar.projectKey=Wood9264_demoCloudBuilds \
-            --define sonar.organization=wood9264 \
-            --define sonar.coverageReportPaths=coverage.xml
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Wood9264_demoCloudBuilds
+            -Dsonar.organization=wood9264
+            -Dsonar.coverageReportPaths=coverage.xml
+            -Dsonar.cfamily.compile-commands=./compile_commands.json
 
       - name: Attach Binary to Workflow run
         id: attachbinarytoworkflowrun
