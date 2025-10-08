@@ -1,6 +1,8 @@
 name: Test, Build and Release
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main, develop]
   push:
     branches: [main, develop]
 
@@ -163,12 +165,25 @@ jobs:
         with:
           python-version: "3.9"
 
+      - name: install gcovr 8.4
+        run: pip install gcovr==8.4
+
       - name: Install PlatformIO Core
         run: pip install --upgrade platformio
+
+      - name: Generate Compilation DataBase
+        run: pio run -t compiledb
 
       - name: Run all generic unit tests
         run: |
           pio test -e all_generic_unittests
+
+      - name: list coverage files
+        run: |
+          ls -l -R .pio/build/all_generic_unittests/
+
+      - name: Collect coverage into XML report
+        run: gcovr --sonarqube > coverage.xml
       
       # - name: Upload coverage reports to Codecov
       #   uses: codecov/codecov-action@v4
@@ -181,6 +196,18 @@ jobs:
       - name: Build
         run: |
           pio run -e production_application
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Wood9264_demoCloudBuilds
+            -Dsonar.organization=wood9264
+            -Dsonar.coverageReportPaths=coverage.xml
+            -Dsonar.cfamily.compile-commands=./compile_commands.json
 
       - name: Attach Binary to Workflow run
         id: attachbinarytoworkflowrun
